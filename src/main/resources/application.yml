@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: redis-cluster-lab
+  data:
+    redis:
+      cluster:
+        nodes: ${SPRING_DATA_REDIS_CLUSTER_NODES:172.28.0.11:7001,172.28.0.12:7002,172.28.0.13:7003,172.28.0.14:7004,172.28.0.15:7005,172.28.0.16:7006}
+      lettuce:
+        pool:
+          enabled: true
+          max-active: 8
+          max-idle: 8
+          min-idle: 0

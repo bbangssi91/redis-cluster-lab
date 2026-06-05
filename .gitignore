@@ -1,0 +1,12 @@
+.gradle/
+build/
+out/
+target/
+
+.DS_Store
+*.log
+
+.idea/
+*.iml
+
+infra/redis/data/

@@ -1,0 +1,138 @@
+services:
+  redis-node-1:
+    image: redis:7.2
+    container_name: redis-node-1
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "7001:7001"
+      - "17001:17001"
+    volumes:
+      - ./infra/redis/redis-7001.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-node-1-data:/data
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.11
+
+  redis-node-2:
+    image: redis:7.2
+    container_name: redis-node-2
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "7002:7002"
+      - "17002:17002"
+    volumes:
+      - ./infra/redis/redis-7002.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-node-2-data:/data
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.12
+
+  redis-node-3:
+    image: redis:7.2
+    container_name: redis-node-3
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "7003:7003"
+      - "17003:17003"
+    volumes:
+      - ./infra/redis/redis-7003.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-node-3-data:/data
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.13
+
+  redis-node-4:
+    image: redis:7.2
+    container_name: redis-node-4
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "7004:7004"
+      - "17004:17004"
+    volumes:
+      - ./infra/redis/redis-7004.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-node-4-data:/data
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.14
+
+  redis-node-5:
+    image: redis:7.2
+    container_name: redis-node-5
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "7005:7005"
+      - "17005:17005"
+    volumes:
+      - ./infra/redis/redis-7005.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-node-5-data:/data
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.15
+
+  redis-node-6:
+    image: redis:7.2
+    container_name: redis-node-6
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "7006:7006"
+      - "17006:17006"
+    volumes:
+      - ./infra/redis/redis-7006.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-node-6-data:/data
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.16
+
+  app1:
+    build: .
+    container_name: redis-cluster-lab-app1
+    profiles: ["app"]
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATA_REDIS_CLUSTER_NODES: 172.28.0.11:7001,172.28.0.12:7002,172.28.0.13:7003,172.28.0.14:7004,172.28.0.15:7005,172.28.0.16:7006
+    ports:
+      - "8081:8080"
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.21
+
+  app2:
+    build: .
+    container_name: redis-cluster-lab-app2
+    profiles: ["app"]
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATA_REDIS_CLUSTER_NODES: 172.28.0.11:7001,172.28.0.12:7002,172.28.0.13:7003,172.28.0.14:7004,172.28.0.15:7005,172.28.0.16:7006
+    ports:
+      - "8082:8080"
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.22
+
+  app3:
+    build: .
+    container_name: redis-cluster-lab-app3
+    profiles: ["app"]
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATA_REDIS_CLUSTER_NODES: 172.28.0.11:7001,172.28.0.12:7002,172.28.0.13:7003,172.28.0.14:7004,172.28.0.15:7005,172.28.0.16:7006
+    ports:
+      - "8083:8080"
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.23
+
+networks:
+  redis-cluster-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  redis-node-1-data:
+  redis-node-2-data:
+  redis-node-3-data:
+  redis-node-4-data:
+  redis-node-5-data:
+  redis-node-6-data:

@@ -1,0 +1,11 @@
+.git/
+.gradle/
+build/*
+!build/libs/
+!build/libs/*.jar
+
+.DS_Store
+*.log
+
+docs/
+infra/redis/data/
