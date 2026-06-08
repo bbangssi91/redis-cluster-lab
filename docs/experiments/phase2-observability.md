@@ -88,7 +88,7 @@ Redis Cluster의 노드 상태는 각 Redis 노드에 연결된 Redis Exporter�
 
 Spring Boot 애플리케이션은 Actuator와 Micrometer Prometheus registry를 통해 HTTP 요청 수, latency, JVM, process metric을 노출한다. Docker Compose에서 `APP_INSTANCE_NAME`을 인스턴스별로 주입해 Prometheus/Grafana에서 app1, app2, app3를 구분한다.
 
-Replication lag는 Redis Exporter가 제공하는 master/replica replication offset 계열 metric의 차이를 기반으로 계산할 수 있다. 정확한 metric 이름은 사용 중인 Redis Exporter 버전의 `/metrics` 출력에서 확인한다. Failover time은 Phase 5에서 failover 시작 시각, cluster state 변화, target down/up, request failure window를 함께 관측해 측정한다.
+Replication lag는 Redis Exporter가 제공하는 master/replica replication offset 계열 metric의 차이를 기반으로 계산할 수 있다. 정확한 metric 이름은 사용 중인 Redis Exporter 버전의 `/metrics` 출력에서 확인한다. Failover time은 Phase 3부터 failover 시작 시각, cluster state 변화, target down/up, request failure window를 함께 관측해 측정한다.
 
 ## Conclusion
 

@@ -1,4 +1,4 @@
-package com.example.redisclusterlab.cluster;
+package com.example.redisclusterlab.cluster.common;
 
 import java.util.List;
 import io.lettuce.core.RedisURI;
@@ -7,25 +7,19 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
-public class ClusterCommandService {
+@Component
+public class RedisClusterConnectionProvider {
 
-    private final StringRedisTemplate redisTemplate;
-    private final List<String> clusterNodes;
+    private final List<String> configuredNodes;
     private final RedisClusterClient redisClusterClient;
     private final StatefulRedisClusterConnection<String, String> clusterConnection;
     private final RedisAdvancedClusterCommands<String, String> clusterCommands;
 
-    public ClusterCommandService(
-            StringRedisTemplate redisTemplate,
-            @Value("${spring.data.redis.cluster.nodes}") List<String> clusterNodes
-    ) {
-        this.redisTemplate = redisTemplate;
-        this.clusterNodes = clusterNodes;
-        this.redisClusterClient = RedisClusterClient.create(clusterNodes.stream()
+    public RedisClusterConnectionProvider(@Value("${spring.data.redis.cluster.nodes}") List<String> configuredNodes) {
+        this.configuredNodes = configuredNodes;
+        this.redisClusterClient = RedisClusterClient.create(configuredNodes.stream()
                 .map(this::redisUri)
                 .toList());
         this.clusterConnection = redisClusterClient.connect();
@@ -33,29 +27,15 @@ public class ClusterCommandService {
     }
 
     public List<String> configuredNodes() {
-        return clusterNodes;
+        return configuredNodes;
     }
 
-    public String clusterNodes() {
-        return clusterCommands.clusterNodes();
+    public StatefulRedisClusterConnection<String, String> connection() {
+        return clusterConnection;
     }
 
-    public List<Object> clusterSlots() {
-        return clusterCommands.clusterSlots().stream()
-                .map(Object.class::cast)
-                .toList();
-    }
-
-    public Long keySlot(String key) {
-        return clusterCommands.clusterKeyslot(key);
-    }
-
-    public void setValue(String key, String value) {
-        redisTemplate.opsForValue().set(key, value);
-    }
-
-    public String getValue(String key) {
-        return redisTemplate.opsForValue().get(key);
+    public RedisAdvancedClusterCommands<String, String> commands() {
+        return clusterCommands;
     }
 
     @PreDestroy

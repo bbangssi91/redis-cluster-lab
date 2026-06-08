@@ -6,15 +6,15 @@ Redis Cluster 환경에서 발생하는 분산 시스템 이슈를 직접 재현
 
 ## Current Phase
 
-현재 브랜치: `phase2-observability`
+현재 브랜치: `phase3-replication-failover`
 
-Phase 2 목표:
+Phase 3 목표:
 
-* Redis 노드별 상태 측정
-* Spring Boot 애플리케이션 상태 측정
-* Prometheus scrape 구성
-* Grafana dashboard 구성
-* Redis Exporter와 Micrometer 연동
+* Redis Cluster master/replica topology 조회
+* 쓰기 후 replica ack 확인
+* replica direct read로 복제 결과 확인
+* master process failure 주입
+* replica promotion과 클러스터 복구 관찰
 
 ## Requirements
 
@@ -33,6 +33,8 @@ Phase 2 목표:
 ./scripts/verify-app.sh http://localhost:8081
 docker compose --profile observability up -d
 ./scripts/verify-observability.sh
+./scripts/verify-replication.sh http://localhost:8081
+./scripts/demo-failover.sh redis-node-1 7001 http://localhost:8081
 ```
 
 앱 인스턴스:
@@ -62,10 +64,14 @@ curl http://localhost:8081/cluster/configured-nodes
 curl "http://localhost:8081/cluster/keyslot?key=user:1"
 curl http://localhost:8081/cluster/nodes
 curl http://localhost:8081/cluster/slots
+curl http://localhost:8081/cluster/topology
 curl -X POST http://localhost:8081/cluster/values \
   -H "Content-Type: application/json" \
   -d '{"key":"phase1:app-demo","value":"hello"}'
 curl "http://localhost:8081/cluster/values?key=phase1:app-demo"
+curl -X POST http://localhost:8081/cluster/replication/probe \
+  -H "Content-Type: application/json" \
+  -d '{"key":"phase3:replication:probe","value":"hello","replicas":1,"timeoutMillis":1000}'
 curl http://localhost:8081/actuator/health
 curl http://localhost:8081/actuator/prometheus
 ```
@@ -84,5 +90,7 @@ Redis Cluster 구성 정보는 Docker volume에 남는다. 클러스터를 처�
 * [Architecture Diagram](docs/architecture.md)
 * [Phase 1 Experiment Report](docs/experiments/phase1-cluster.md)
 * [Phase 2 Experiment Report](docs/experiments/phase2-observability.md)
+* [Phase 3 Experiment Report](docs/experiments/phase3-replication-failover.md)
 * [Phase 1 Troubleshooting Notes](docs/troubleshooting/phase1.md)
 * [Phase 2 Troubleshooting Notes](docs/troubleshooting/phase2.md)
+* [Phase 3 Troubleshooting Notes](docs/troubleshooting/phase3.md)

@@ -305,11 +305,11 @@ phase1-cluster
 
 phase2-observability
 
-phase3-lock-with-lettuce
+phase3-failover
 
-phase4-redisson
+phase4-lock-with-lettuce
 
-phase5-failover
+phase5-redisson
 
 phase6-chaos-testing
 

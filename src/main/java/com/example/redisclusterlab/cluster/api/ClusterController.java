@@ -1,6 +1,15 @@
-package com.example.redisclusterlab.cluster;
+package com.example.redisclusterlab.cluster.api;
 
-import java.util.List;
+import com.example.redisclusterlab.cluster.application.ClusterCommandService;
+import com.example.redisclusterlab.cluster.dto.ClusterSlotsResponse;
+import com.example.redisclusterlab.cluster.dto.ClusterTopologyResponse;
+import com.example.redisclusterlab.cluster.dto.ConfiguredNodesResponse;
+import com.example.redisclusterlab.cluster.dto.KeySlotResponse;
+import com.example.redisclusterlab.cluster.dto.KeyValueRequest;
+import com.example.redisclusterlab.cluster.dto.KeyValueResponse;
+import com.example.redisclusterlab.cluster.dto.RawClusterCommandResponse;
+import com.example.redisclusterlab.cluster.dto.ReplicationProbeRequest;
+import com.example.redisclusterlab.cluster.replication.ReplicationProbeResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +43,11 @@ public class ClusterController {
         return new ClusterSlotsResponse(clusterCommandService.clusterSlots());
     }
 
+    @GetMapping("/topology")
+    public ClusterTopologyResponse topology() {
+        return new ClusterTopologyResponse(clusterCommandService.topology());
+    }
+
     @GetMapping("/keyslot")
     public KeySlotResponse keySlot(@RequestParam String key) {
         return new KeySlotResponse(key, clusterCommandService.keySlot(key));
@@ -50,21 +64,13 @@ public class ClusterController {
         return new KeyValueResponse(key, clusterCommandService.getValue(key));
     }
 
-    public record ConfiguredNodesResponse(List<String> nodes) {
-    }
-
-    public record RawClusterCommandResponse(String result) {
-    }
-
-    public record ClusterSlotsResponse(List<Object> slots) {
-    }
-
-    public record KeySlotResponse(String key, Long slot) {
-    }
-
-    public record KeyValueRequest(String key, String value) {
-    }
-
-    public record KeyValueResponse(String key, String value) {
+    @PostMapping("/replication/probe")
+    public ReplicationProbeResult replicationProbe(@RequestBody ReplicationProbeRequest request) {
+        return clusterCommandService.replicationProbe(
+                request.key(),
+                request.value(),
+                request.replicas(),
+                request.timeoutMillis()
+        );
     }
 }

@@ -1,6 +1,6 @@
 # Architecture Diagram
 
-Phase 2 기준 아키텍처이다.
+Phase 3 기준 아키텍처이다.
 
 ```mermaid
 flowchart LR
@@ -45,6 +45,10 @@ flowchart LR
         M2 -. replica assignment .- R6
         M3 -. replica assignment .- R4
 
+        R5 -. promotion candidate .-> M1
+        R6 -. promotion candidate .-> M2
+        R4 -. promotion candidate .-> M3
+
         E1 --> M1
         E2 --> M2
         E3 --> M3
@@ -77,4 +81,24 @@ Redis 노드는 `redis-cli --cluster create`로 직접 구성한다. 자동 클�
 
 Prometheus는 Redis Exporter 6개와 Spring Boot Actuator endpoint를 scrape한다. Grafana는 provisioning 설정으로 Prometheus datasource와 `Redis Cluster Lab Observability` dashboard를 자동 등록한다.
 
+Phase 3에서는 앱의 `/cluster/topology` API로 master/replica 관계와 slot owner를 조회하고, `/cluster/replication/probe` API로 master write 이후 `WAIT` ack와 replica direct read 결과를 확인한다. Process failure는 `scripts/demo-failover.sh`에서 특정 Redis master 컨테이너를 `docker stop`으로 중지해 주입한다.
+
 Replica assignment는 Phase 1 최초 실행 결과 기준이다. 클러스터를 초기화한 뒤 다시 생성하면 `cluster nodes` 결과를 기준으로 확인한다.
+
+## Java Package Layout
+
+```text
+com.example.redisclusterlab.cluster
+├── api
+│   └── REST endpoint
+├── application
+│   └── API use-case facade
+├── common
+│   └── Redis Cluster client lifecycle
+├── dto
+│   └── Request/response records
+├── replication
+│   └── Replication experiment service and result records
+└── topology
+    └── Cluster node/slot model and parser
+```
