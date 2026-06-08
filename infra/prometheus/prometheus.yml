@@ -1,0 +1,58 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - prometheus:9090
+
+  - job_name: redis
+    static_configs:
+      - targets:
+          - redis-exporter-7001:9121
+        labels:
+          redis_node: redis-node-1
+          redis_port: "7001"
+      - targets:
+          - redis-exporter-7002:9121
+        labels:
+          redis_node: redis-node-2
+          redis_port: "7002"
+      - targets:
+          - redis-exporter-7003:9121
+        labels:
+          redis_node: redis-node-3
+          redis_port: "7003"
+      - targets:
+          - redis-exporter-7004:9121
+        labels:
+          redis_node: redis-node-4
+          redis_port: "7004"
+      - targets:
+          - redis-exporter-7005:9121
+        labels:
+          redis_node: redis-node-5
+          redis_port: "7005"
+      - targets:
+          - redis-exporter-7006:9121
+        labels:
+          redis_node: redis-node-6
+          redis_port: "7006"
+
+  - job_name: redis-cluster-lab-app
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - app1:8080
+        labels:
+          app_instance: app1
+      - targets:
+          - app2:8080
+        labels:
+          app_instance: app2
+      - targets:
+          - app3:8080
+        labels:
+          app_instance: app3

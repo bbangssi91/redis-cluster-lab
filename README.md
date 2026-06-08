@@ -6,15 +6,15 @@ Redis Cluster 환경에서 발생하는 분산 시스템 이슈를 직접 재현
 
 ## Current Phase
 
-현재 브랜치: `phase1-cluster`
+현재 브랜치: `phase2-observability`
 
-Phase 1 목표:
+Phase 2 목표:
 
-* Redis 7.x Cluster 직접 구축
-* 3 Master + 3 Replica 구성 검증
-* Hash Slot 분배 확인
-* `MOVED` redirect 관찰
-* Spring Boot 앱 3개 인스턴스에서 cluster client 연결 확인
+* Redis 노드별 상태 측정
+* Spring Boot 애플리케이션 상태 측정
+* Prometheus scrape 구성
+* Grafana dashboard 구성
+* Redis Exporter와 Micrometer 연동
 
 ## Requirements
 
@@ -31,6 +31,8 @@ Phase 1 목표:
 ./scripts/demo-moved.sh
 ./scripts/start-apps.sh
 ./scripts/verify-app.sh http://localhost:8081
+docker compose --profile observability up -d
+./scripts/verify-observability.sh
 ```
 
 앱 인스턴스:
@@ -38,6 +40,20 @@ Phase 1 목표:
 * App1: http://localhost:8081
 * App2: http://localhost:8082
 * App3: http://localhost:8083
+
+Observability:
+
+* Prometheus: http://localhost:9090
+* Grafana: http://localhost:3000
+  * User: `admin`
+  * Password: `admin`
+* Redis Exporters:
+  * redis-node-1: http://localhost:9121/metrics
+  * redis-node-2: http://localhost:9122/metrics
+  * redis-node-3: http://localhost:9123/metrics
+  * redis-node-4: http://localhost:9124/metrics
+  * redis-node-5: http://localhost:9125/metrics
+  * redis-node-6: http://localhost:9126/metrics
 
 ## Spring Boot API
 
@@ -50,6 +66,8 @@ curl -X POST http://localhost:8081/cluster/values \
   -H "Content-Type: application/json" \
   -d '{"key":"phase1:app-demo","value":"hello"}'
 curl "http://localhost:8081/cluster/values?key=phase1:app-demo"
+curl http://localhost:8081/actuator/health
+curl http://localhost:8081/actuator/prometheus
 ```
 
 ## Reset
@@ -65,4 +83,6 @@ Redis Cluster 구성 정보는 Docker volume에 남는다. 클러스터를 처�
 
 * [Architecture Diagram](docs/architecture.md)
 * [Phase 1 Experiment Report](docs/experiments/phase1-cluster.md)
+* [Phase 2 Experiment Report](docs/experiments/phase2-observability.md)
 * [Phase 1 Troubleshooting Notes](docs/troubleshooting/phase1.md)
+* [Phase 2 Troubleshooting Notes](docs/troubleshooting/phase2.md)
