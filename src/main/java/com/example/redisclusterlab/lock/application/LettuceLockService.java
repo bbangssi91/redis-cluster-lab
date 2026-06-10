@@ -9,25 +9,19 @@ import com.example.redisclusterlab.lock.lettuce.LettuceLockClient;
 import com.example.redisclusterlab.lock.metrics.LettuceLockMetrics;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
+// Lettuce로 SET NX PX와 token-safe Lua release를 직접 구현해 분산락의 최소 원리를 검증하는 baseline 서비스다.
 public class LettuceLockService {
 
     private final LettuceLockClient lockClient;
     private final LettuceLockMetrics lockMetrics;
+    @Value("${APP_INSTANCE_NAME:local}")
     private final String defaultOwner;
-
-    public LettuceLockService(
-            LettuceLockClient lockClient,
-            LettuceLockMetrics lockMetrics,
-            @Value("${APP_INSTANCE_NAME:local}") String defaultOwner
-    ) {
-        this.lockClient = lockClient;
-        this.lockMetrics = lockMetrics;
-        this.defaultOwner = defaultOwner;
-    }
 
     // SET NX PX는 Redis 단일 명령이라 락 획득과 TTL 설정이 원자적으로 처리된다.
     public AcquireLockResponse acquire(AcquireLockRequest request) {

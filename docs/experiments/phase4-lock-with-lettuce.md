@@ -79,13 +79,13 @@ curl -X POST http://localhost:8081/locks/lettuce/ttl-expiration \
 
 애플리케이션 메트릭:
 
-* `redis_lock_acquire_total{client="lettuce",result="success"}`
-* `redis_lock_acquire_total{client="lettuce",result="failure"}`
-* `redis_lock_release_total{client="lettuce",result="success"}`
-* `redis_lock_release_total{client="lettuce",result="failure"}`
-* `redis_lock_acquire_duration_seconds_count{client="lettuce"}`
-* `redis_lock_acquire_duration_seconds_sum{client="lettuce"}`
-* `redis_lock_contention_attempts_total{client="lettuce"}`
+* `redis_lock_acquire_total{client="lettuce",mode="single",result="success"}`
+* `redis_lock_acquire_total{client="lettuce",mode="single",result="failure"}`
+* `redis_lock_release_total{client="lettuce",mode="single",result="success"}`
+* `redis_lock_release_total{client="lettuce",mode="single",result="failure"}`
+* `redis_lock_acquire_duration_seconds_count{client="lettuce",mode="single"}`
+* `redis_lock_acquire_duration_seconds_sum{client="lettuce",mode="single"}`
+* `redis_lock_contention_attempts_total{client="lettuce",mode="single"}`
 
 Prometheus 질의 예시:
 

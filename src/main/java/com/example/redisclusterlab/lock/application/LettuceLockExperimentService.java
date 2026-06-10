@@ -19,30 +19,23 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
+// Lettuce baseline 락을 여러 worker가 동시에 두드리게 해서 경합, TTL 만료, 늦은 release 실패를 재현한다.
 public class LettuceLockExperimentService {
 
     private final LettuceLockService lockService;
     private final LettuceLockMetrics lockMetrics;
+    @Qualifier("lockExperimentExecutor")
     private final AsyncTaskExecutor lockExperimentExecutor;
+    @Value("${APP_INSTANCE_NAME:local}")
     private final String defaultOwner;
-
-    public LettuceLockExperimentService(
-            LettuceLockService lockService,
-            LettuceLockMetrics lockMetrics,
-            @Qualifier("lockExperimentExecutor") AsyncTaskExecutor lockExperimentExecutor,
-            @Value("${APP_INSTANCE_NAME:local}") String defaultOwner
-    ) {
-        this.lockService = lockService;
-        this.lockMetrics = lockMetrics;
-        this.lockExperimentExecutor = lockExperimentExecutor;
-        this.defaultOwner = defaultOwner;
-    }
 
     // 모든 worker를 대기시킨 뒤 동시에 출발시켜 같은 key에 대한 경합을 재현한다.
     public LockContendResponse contend(LockContendRequest request) {

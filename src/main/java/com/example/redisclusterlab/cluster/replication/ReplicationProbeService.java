@@ -8,25 +8,18 @@ import com.example.redisclusterlab.cluster.topology.ClusterNode;
 import com.example.redisclusterlab.cluster.topology.ClusterTopologyParser;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
+// master write 이후 WAIT ack와 replica direct read를 비교해 Redis Cluster 복제 지연과 가시성을 관찰한다.
 public class ReplicationProbeService {
 
     private final StringRedisTemplate redisTemplate;
     private final RedisClusterConnectionProvider connectionProvider;
     private final ClusterTopologyParser topologyParser;
-
-    public ReplicationProbeService(
-            StringRedisTemplate redisTemplate,
-            RedisClusterConnectionProvider connectionProvider,
-            ClusterTopologyParser topologyParser
-    ) {
-        this.redisTemplate = redisTemplate;
-        this.connectionProvider = connectionProvider;
-        this.topologyParser = topologyParser;
-    }
 
     public ReplicationProbeResult probe(String key, String value, int replicas, long timeoutMillis) {
         List<ClusterNode> nodes = topologyParser.parse(connectionProvider.commands().clusterNodes());

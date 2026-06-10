@@ -3,9 +3,12 @@ package com.example.redisclusterlab.lock.lettuce;
 import com.example.redisclusterlab.cluster.common.RedisClusterConnectionProvider;
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.SetArgs;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
+// Lettuce baseline이 실제 Redis 명령을 어떻게 호출하는지 드러내기 위한 얇은 client wrapper다.
 public class LettuceLockClient {
 
     // GET과 DEL을 하나의 Lua script로 묶어 다른 owner의 락을 지우는 일을 막는다.
@@ -18,10 +21,6 @@ public class LettuceLockClient {
             """;
 
     private final RedisClusterConnectionProvider connectionProvider;
-
-    public LettuceLockClient(RedisClusterConnectionProvider connectionProvider) {
-        this.connectionProvider = connectionProvider;
-    }
 
     // Redis SET NX PX 명령을 Lettuce API로 직접 호출한다.
     public boolean acquire(String lockKey, String token, long ttlMillis) {

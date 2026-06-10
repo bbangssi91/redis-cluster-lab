@@ -10,6 +10,7 @@ import com.example.redisclusterlab.cluster.dto.KeyValueResponse;
 import com.example.redisclusterlab.cluster.dto.RawClusterCommandResponse;
 import com.example.redisclusterlab.cluster.dto.ReplicationProbeRequest;
 import com.example.redisclusterlab.cluster.replication.ReplicationProbeResult;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,13 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/cluster")
+@RequiredArgsConstructor
 public class ClusterController {
 
     private final ClusterCommandService clusterCommandService;
-
-    public ClusterController(ClusterCommandService clusterCommandService) {
-        this.clusterCommandService = clusterCommandService;
-    }
 
     @GetMapping("/configured-nodes")
     public ConfiguredNodesResponse configuredNodes() {

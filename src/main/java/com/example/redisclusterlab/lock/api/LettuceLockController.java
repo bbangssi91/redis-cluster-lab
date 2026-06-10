@@ -13,6 +13,7 @@ import com.example.redisclusterlab.lock.dto.ReleaseLockRequest;
 import com.example.redisclusterlab.lock.dto.ReleaseLockResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,18 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Validated
 @RequestMapping("/locks/lettuce")
+@RequiredArgsConstructor
 public class LettuceLockController {
 
     private final LettuceLockService lockService;
     private final LettuceLockExperimentService experimentService;
-
-    public LettuceLockController(
-            LettuceLockService lockService,
-            LettuceLockExperimentService experimentService
-    ) {
-        this.lockService = lockService;
-        this.experimentService = experimentService;
-    }
 
     // 기본 락 API는 service에 바로 위임하고, 입력 검증은 Bean Validation annotation으로 처리한다.
     @PostMapping("/acquire")

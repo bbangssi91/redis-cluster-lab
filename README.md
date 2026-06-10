@@ -6,15 +6,16 @@ Redis Cluster 환경에서 발생하는 분산 시스템 이슈를 직접 재현
 
 ## 현재 단계
 
-현재 브랜치: `phase4-lock-with-lettuce`
+현재 브랜치: `phase5-redisson`
 
-Phase 4 목표:
+Phase 5 목표:
 
-* Lettuce 직접 사용 기반 `SET NX PX` 락 획득
-* owner token 기반 safe release Lua script
-* 락 상태, 락 경합, TTL 만료 실험 API
-* 여러 앱 인스턴스 간 락 경합 관찰
-* 락 획득/해제 Micrometer metric 확인
+* Redisson Cluster client 설정
+* `RLock` acquire/try-acquire/release/state 실험 API
+* watchdog TTL 자동 연장 실험
+* lease time 지정 시 만료와 stale owner 가능성 관찰
+* multi lock 실험
+* Lettuce 직접 구현 baseline과 Redisson metric 비교
 
 ## 요구 사항
 
@@ -37,6 +38,10 @@ docker compose --profile observability up -d
 ./scripts/demo-failover.sh redis-node-1 7001 http://localhost:8081
 ./scripts/verify-lettuce-lock.sh http://localhost:8081
 ./scripts/demo-lock-contention.sh
+./scripts/verify-redisson-lock.sh http://localhost:8081
+./scripts/demo-redisson-watchdog.sh http://localhost:8081
+./scripts/demo-redisson-lease-expiration.sh http://localhost:8081
+./scripts/demo-redisson-multi-lock.sh http://localhost:8081
 ```
 
 앱 인스턴스:
@@ -84,6 +89,22 @@ curl -X POST http://localhost:8081/locks/lettuce/contend \
 curl -X POST http://localhost:8081/locks/lettuce/ttl-expiration \
   -H "Content-Type: application/json" \
   -d '{"lockKey":"phase4:lock:ttl","ttlMillis":500,"waitMillis":700,"owner":"manual"}'
+curl -X POST http://localhost:8081/locks/redisson/try-acquire \
+  -H "Content-Type: application/json" \
+  -d '{"lockKey":"phase5:redisson:demo","owner":"manual","waitMillis":0,"leaseMillis":5000}'
+curl "http://localhost:8081/locks/redisson/state?lockKey=phase5:redisson:demo"
+curl -X POST http://localhost:8081/locks/redisson/watchdog \
+  -H "Content-Type: application/json" \
+  -d '{"lockKey":"phase5:redisson:watchdog","owner":"manual","workMillis":35000,"sampleIntervalMillis":5000}'
+curl -X POST http://localhost:8081/locks/redisson/lease-expiration \
+  -H "Content-Type: application/json" \
+  -d '{"lockKey":"phase5:redisson:lease","owner":"manual","leaseMillis":1000,"workMillis":1500}'
+curl -X POST http://localhost:8081/locks/redisson/multi-lock \
+  -H "Content-Type: application/json" \
+  -d '{"lockKeys":["phase5:{multi}:a","phase5:{multi}:b"],"owner":"manual","waitMillis":500,"leaseMillis":5000,"workMillis":200}'
+curl -X POST http://localhost:8081/locks/redisson/aop-business-demo \
+  -H "Content-Type: application/json" \
+  -d '{"couponId":"coupon-1","userId":"user-1"}'
 curl http://localhost:8081/actuator/health
 curl http://localhost:8081/actuator/prometheus
 ```
@@ -104,6 +125,8 @@ Redis Cluster 구성 정보는 Docker volume에 남는다. 클러스터를 처�
 * [Phase 2 실험 보고서](docs/experiments/phase2-observability.md)
 * [Phase 3 실험 보고서](docs/experiments/phase3-replication-failover.md)
 * [Phase 4 실험 보고서](docs/experiments/phase4-lock-with-lettuce.md)
+* [Phase 5 실험 보고서](docs/experiments/phase5-redisson.md)
 * [Phase 1 문제 해결 기록](docs/troubleshooting/phase1.md)
 * [Phase 2 문제 해결 기록](docs/troubleshooting/phase2.md)
 * [Phase 3 문제 해결 기록](docs/troubleshooting/phase3.md)
+* [Phase 5 문제 해결 기록](docs/troubleshooting/phase5.md)
