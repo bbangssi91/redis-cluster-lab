@@ -126,6 +126,7 @@ Redis Cluster 구성 정보는 Docker volume에 남는다. 클러스터를 처�
 * [Phase 3 실험 보고서](docs/experiments/phase3-replication-failover.md)
 * [Phase 4 실험 보고서](docs/experiments/phase4-lock-with-lettuce.md)
 * [Phase 5 실험 보고서](docs/experiments/phase5-redisson.md)
+* [Redis Cluster 최종 복습 노트](docs/redis-cluster-study-review.md)
 * [Phase 1 문제 해결 기록](docs/troubleshooting/phase1.md)
 * [Phase 2 문제 해결 기록](docs/troubleshooting/phase2.md)
 * [Phase 3 문제 해결 기록](docs/troubleshooting/phase3.md)
